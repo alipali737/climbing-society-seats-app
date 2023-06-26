@@ -2,22 +2,52 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>UoW Climbing Society Session Signup</title>
         <link rel="stylesheet" href="resources/css/index.css">
     </head>
     <body>
-        <div id="titles">
-            <h1>UoW Climbing Society 2023/24</h1>
-            <h2>Session Signup</h2>
-        </div>
-        <div id="signup-section">
-            <p>Please sign up here</p>
-            <form action="/submit" method="post">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-                <br><br>
-                <input type="submit" value="Submit">
-            </form>
+        <script src="/resources/js/countdown.js" defer></script>
+        <div id="main-section" class="all-round-shadow">
+            <div id="left-side">
+                <div id="title-section">
+                    <img src="/resources/images/society-logo.jpg" alt="society-logo" id="title-logo">
+                    <h1>limbing</h1>
+                </div>
+                <div id="info-section">
+                    <h4>Session Location: <span id="session-location">loc</span></h4>
+                    <h4>Session Date: <span id="session-date">date</span></h4>
+                    <h4>Meet Time: <span id="meet-time">meet-time</span></h4>
+                    <h4>Meet Point: <span id="meet-point">meet-point</span></h4>
+                    <br>
+                    <h4>Seats Remaining: <span id="current-seats" class="valid-text">cur</span>/<span id="max-seats">max</span></h4>
+                </div>
+                <div id="countdown-section">
+                    <h4>Signup closes in</h4>
+                    <div class="countdown">
+                        <ul id="countdown-list">
+                            <li><span id="countdown-days"></span>days</li>
+                            <li><span id="countdown-hours"></span>hours</li>
+                            <li><span id="countdown-minutes"></span>minutes</li>
+                            <li><span id="countdown-seconds"></span>seconds</li>
+                        </ul>
+                        <h2 id="countdown-closed-text" class="disabled">CLOSED</h2>
+                    </div>
+                </div>
+            </div>
+            <div id="right-side">
+                <div>
+                    <h2>Enter your name to register for a seat</h2>
+                    <form action="/api/submit" method="POST">
+                        <label for="name">name</label><br>
+                        <input type="text" id="name" name="name" placeholder="John Smith"><br>
+                        <label>are you a member?</label>
+                        <input type="checkbox" class="regular-checkbox" id="member" name="member" value="true"><label for="member"></label><br><br>
+                        <input type="submit" class="submit-button" value="register">
+                    </form>
+                    <p id="response-text" class="invalid-text"></p>
+                </div>
+            </div>
         </div>
     </body>
 </html>
