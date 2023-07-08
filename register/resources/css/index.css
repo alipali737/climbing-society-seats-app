@@ -4,7 +4,7 @@
     --main-bg-colour: #BCDEE6;
     --secondary-bg-colour: #DCEEFD;
     --society-green: #45B91A;
-    --society-green-lighter: #45B91A;
+    --society-green-lighter: #7bca5e;
     --society-green-darker: #358f14;
     --bs-success: #198754;
     --bs-danger: #DC3545;
@@ -139,8 +139,20 @@ label {
 }
 
 .disabled {
-    display: none;
-    visibility: hidden;
+    display: none !important;
+    visibility: hidden !important;
+}
+
+#error-main-section {
+    display: flex;
+    background-color: whitesmoke;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: var(--main-section-width);
+    border-radius: 10px;
+    padding: 1rem 0;
 }
 
 #main-section {
@@ -214,7 +226,7 @@ label {
     color: var(--bs-danger);
 }
 
-.countdown-closed-text {
+#countdown-closed-text {
     color: var(--bs-danger);
 }
 
@@ -288,18 +300,35 @@ label {
 }
 
 .submit-button {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    width: fit-content;
+}
+
+#submit-button:disabled #submit-button-content,
+#submit-button[disabled] #submit-button-content {
+    cursor: default;
+    background-color: darkgrey;
+}
+
+#submit-button-content {
     text-transform: uppercase;
     background-color: var(--society-green);
     color: white;
     border: 1px solid gray;
     border-radius: 10px;
     cursor: pointer;
+    font-size: 2.5rem;
+    padding: 2px 10px;
+    transition: all 0.25s ease;
 }
 
-.submit-button:hover {
+#submit-button-content:hover {
     background-color: var(--society-green-lighter);
 }
 
-.submit-button:active {
+#submit-button-content:active {
     background-color: var(--society-green-darker);
 }

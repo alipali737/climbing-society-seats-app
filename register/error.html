@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>UoW Climbing Society Session Signup</title>
+        <link rel="stylesheet" href="resources/css/index.css">
+    </head>
+    <body>
+        <div id="error-main-section" class="all-round-shadow">
+            <h1>An error occured</h1>
+            <br>
+            <h4 class="invalid-text" id="error-message"></h4>
+            <script>
+                const urlParams = new URLSearchParams(window.location.search);
+                const errorMessage = urlParams.get('message');
+                
+                const errorMessageElement = document.getElementById('error-message');
+                errorMessageElement.textContent = errorMessage;
+            </script>
+        </div>
+    </body>
+</html>

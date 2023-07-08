@@ -5,13 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>UoW Climbing Society Session Signup</title>
         <link rel="stylesheet" href="resources/css/index.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     </head>
     <body>
-        <script src="/resources/js/countdown.js" defer></script>
+        <script src="./resources/js/index.js" defer></script>
         <div id="main-section" class="all-round-shadow">
             <div id="left-side">
                 <div id="title-section">
-                    <img src="/resources/images/society-logo.jpg" alt="society-logo" id="title-logo">
+                    <img src="/register/resources/images/society-logo.jpg" alt="society-logo" id="title-logo">
                     <h1>limbing</h1>
                 </div>
                 <div id="info-section">
@@ -26,26 +27,31 @@
                     <h4>Signup closes in</h4>
                     <div class="countdown">
                         <ul id="countdown-list">
-                            <li><span id="countdown-days"></span>days</li>
-                            <li><span id="countdown-hours"></span>hours</li>
-                            <li><span id="countdown-minutes"></span>minutes</li>
-                            <li><span id="countdown-seconds"></span>seconds</li>
+                            <li><span id="countdown-days">0</span>days</li>
+                            <li><span id="countdown-hours">0</span>hours</li>
+                            <li><span id="countdown-minutes">0</span>minutes</li>
+                            <li><span id="countdown-seconds">0</span>seconds</li>
                         </ul>
-                        <h2 id="countdown-closed-text" class="disabled">CLOSED</h2>
                     </div>
+                    <h2 id="countdown-closed-text" class="disabled">CLOSED</h2>
                 </div>
             </div>
             <div id="right-side">
                 <div>
                     <h2>Enter your name to register for a seat</h2>
-                    <form action="/api/submit" method="POST">
+                    <form id="registerForm">
                         <label for="name">name</label><br>
                         <input type="text" id="name" name="name" placeholder="John Smith"><br>
                         <label>are you a member?</label>
-                        <input type="checkbox" class="regular-checkbox" id="member" name="member" value="true"><label for="member"></label><br><br>
-                        <input type="submit" class="submit-button" value="register">
+                        <input type="checkbox" class="regular-checkbox" id="member" name="member"><label for="member"></label><br><br>
+                        <div style="display: flex; justify-content: center; align-items: center;">
+                            <button type="submit" id="submit-button" class="submit-button">
+                                <span id="submit-button-content">register</span>
+                            </button>
+                        </div>
+
                     </form>
-                    <p id="response-text" class="invalid-text"></p>
+                    <p id="response-text"></p>
                 </div>
             </div>
         </div>
