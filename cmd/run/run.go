@@ -38,7 +38,13 @@ func (r *Run) Run() error {
 
 	router.Static("/resources", "./resources")
 	router.Static("/register", "./register")
-	router.Static("/admin", "./admin")
+
+	router.GET("/admin", func(c *gin.Context) {
+		c.File("./admin/index.html")
+	})
+	router.GET("/admin/dashboard.html", authMiddleware(encryptionPassPhrase), func(c *gin.Context) {
+		c.File("./admin/dashboard.html")
+	})
 
 	// API Endpoints
 	router.GET("/", func(c *gin.Context) { c.Redirect(http.StatusMovedPermanently, "/register") })
@@ -48,6 +54,31 @@ func (r *Run) Run() error {
 
 	router.Run(":443")
 	return nil
+}
+
+func authMiddleware(encryptionPassPhrase string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString, err := c.Cookie("token")
+		if err != nil {
+			// Return a 404, hide the existence of the page if they are not authorized to view it
+			c.JSON(http.StatusNotFound, gin.H{"error": "Not Found"})
+			consoleError("No auth token present")
+			c.Abort()
+			return
+		}
+
+		token, err := token.ValidateJWT(tokenString, encryptionPassPhrase)
+		if err != nil {
+			// Return a 404, hide the existence of the page if they are not authorized to view it
+			c.JSON(http.StatusNotFound, gin.H{"error": "Not Found"})
+			consoleError(fmt.Sprintf("Auth failed: %v\n", err))
+			c.Abort()
+			return
+		}
+
+		c.Set("claims", token.Claims)
+		c.Next()
+	}
 }
 
 func consoleError(msg string) {
@@ -298,6 +329,7 @@ func handleAdminLogin(c *gin.Context) {
 
 		// Send JSON response
 		c.JSON(http.StatusForbidden, response)
+		return
 	}
 
 	if database.ValidatePassword(loginData.Password, dbUser.PasswordHash) {
@@ -311,11 +343,13 @@ func handleAdminLogin(c *gin.Context) {
 		response := gin.H{
 			"success": true,
 			"message": "Authentication successful",
-			"token":   token,
 		}
+
+		c.SetCookie("token", token, 3600, "/admin", "", false, true)
 
 		// Send JSON response
 		c.JSON(http.StatusAccepted, response)
+		return
 	} else {
 		response := gin.H{
 			"success": false,
@@ -324,6 +358,7 @@ func handleAdminLogin(c *gin.Context) {
 
 		// Send JSON response
 		c.JSON(http.StatusForbidden, response)
+		return
 	}
 }
 

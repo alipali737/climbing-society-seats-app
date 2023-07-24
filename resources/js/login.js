@@ -48,23 +48,49 @@ async function loginLogic() {
         if (data.success) {
             buttonContent.innerHTML = '<i class="fa fa-check"></i> Success!';
             buttonContent.style.backgroundColor = societyGreen;
-            console.log(data.message);
-            window.location.href = '/admin/dashboard.html';
+            responseText(data.message, true);
+
+            setTimeout(() => {
+                window.location.href = '/admin/dashboard.html';
+            }, 1000);
         } else {
             buttonContent.innerHTML = '<i class="fa fa-times"></i> Error!';
             buttonContent.style.backgroundColor = bsDanger;
+            responseText(data.message, false);
         }
     } catch (error) {
         // Show error symbol
         buttonContent.innerHTML = '<i class="fa fa-times"></i> Error!';
         buttonContent.style.backgroundColor = bsDanger;
 
+        responseText(error, false);
         console.error(error);
     }
 
-    // Reset button
-    buttonContent.innerHTML = 'login';
-    buttonContent.style.backgroundColor = societyGreen;
-    button.disabled = false;
-    isLoginInProgress = false;
+    setTimeout(() => {
+        // Reset button
+        buttonContent.innerHTML = 'login';
+        buttonContent.style.backgroundColor = societyGreen;
+        button.disabled = false;
+        isLoginInProgress = false;
+    }, 5000);
+}
+
+function responseText(text, success) {
+    var displayElement = document.getElementById('response-text');
+    displayElement.textContent = text;
+
+    if (success) {
+        displayElement.classList.remove('invalid-text');
+        displayElement.classList.add('valid-text');
+    } else {
+        displayElement.classList.remove('valid-text');
+        displayElement.classList.add('invalid-text');
+    }
+
+    setTimeout(() => {
+        displayElement.textContent = '';
+        displayElement.classList.remove('valid-text');
+        displayElement.classList.remove('invalid-text');
+    }, 5000);
 }
