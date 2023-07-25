@@ -32,7 +32,11 @@ func (r *Run) Run() error {
 		return fmt.Errorf("failed to generate secure passphrase for encryption: %v", err)
 	}
 	encryptionPassPhrase = generatedPassphrase
-	token.GenerateNewEncryptedToken(encryptionPassPhrase, 64)
+
+	err = token.GenerateNewEncryptedToken(encryptionPassPhrase, 32)
+	if err != nil {
+		return fmt.Errorf("failed to generate new encrypted token: %v", err)
+	}
 
 	router := gin.Default()
 
@@ -42,7 +46,7 @@ func (r *Run) Run() error {
 	router.GET("/admin", func(c *gin.Context) {
 		c.File("./admin/index.html")
 	})
-	router.GET("/admin/dashboard.html", authMiddleware(encryptionPassPhrase), func(c *gin.Context) {
+	router.GET("/admin/dashboard", authMiddleware(encryptionPassPhrase), func(c *gin.Context) {
 		c.File("./admin/dashboard.html")
 	})
 
@@ -67,7 +71,16 @@ func authMiddleware(encryptionPassPhrase string) gin.HandlerFunc {
 			return
 		}
 
-		token, err := token.ValidateJWT(tokenString, encryptionPassPhrase)
+		key, err := token.GetCryptographicKey(encryptionPassPhrase)
+		if err != nil {
+			// Return a 404, hide the existence of the page if they are not authorized to view it
+			c.JSON(http.StatusNotFound, gin.H{"error": "Not Found"})
+			consoleError("No auth token present")
+			c.Abort()
+			return
+		}
+
+		token, err := token.ValidateJWT(tokenString, key)
 		if err != nil {
 			// Return a 404, hide the existence of the page if they are not authorized to view it
 			c.JSON(http.StatusNotFound, gin.H{"error": "Not Found"})
@@ -76,6 +89,8 @@ func authMiddleware(encryptionPassPhrase string) gin.HandlerFunc {
 			return
 		}
 
+		consoleLog("Authenticated token, proceeding")
+
 		c.Set("claims", token.Claims)
 		c.Next()
 	}
@@ -83,6 +98,10 @@ func authMiddleware(encryptionPassPhrase string) gin.HandlerFunc {
 
 func consoleError(msg string) {
 	fmt.Println("\033[31m[ERR] " + msg + "\033[0m")
+}
+
+func consoleLog(msg string) {
+	fmt.Println("[DBG] " + msg)
 }
 
 func handleEventDetails(c *gin.Context) {
@@ -333,9 +352,16 @@ func handleAdminLogin(c *gin.Context) {
 	}
 
 	if database.ValidatePassword(loginData.Password, dbUser.PasswordHash) {
-		token, err := token.NewJWT(loginData.Username, encryptionPassPhrase)
+		key, err := token.GetCryptographicKey(encryptionPassPhrase)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			consoleError(err.Error())
+			return
+		}
+
+		token, err := token.NewJWT(loginData.Username, key)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			consoleError(err.Error())
 			return
 		}

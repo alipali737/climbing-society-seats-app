@@ -51,7 +51,7 @@ async function loginLogic() {
             responseText(data.message, true);
 
             setTimeout(() => {
-                window.location.href = '/admin/dashboard.html';
+                window.location.href = '/admin/dashboard';
             }, 1000);
         } else {
             buttonContent.innerHTML = '<i class="fa fa-times"></i> Error!';
@@ -73,7 +73,7 @@ async function loginLogic() {
         buttonContent.style.backgroundColor = societyGreen;
         button.disabled = false;
         isLoginInProgress = false;
-    }, 5000);
+    }, 3000);
 }
 
 function responseText(text, success) {
@@ -92,5 +92,5 @@ function responseText(text, success) {
         displayElement.textContent = '';
         displayElement.classList.remove('valid-text');
         displayElement.classList.remove('invalid-text');
-    }, 5000);
+    }, 3000);
 }
