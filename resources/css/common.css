@@ -8,6 +8,8 @@
     --society-green-darker: #358f14;
     --bs-success: #198754;
     --bs-danger: #DC3545;
+    --bs-warning: #ffc107;
+    --bs-primary: #0d6efd;
 }
 
 html {
@@ -100,14 +102,30 @@ form input {
 }
 
 form input[type=text],
-form input[type=password] {
+form input[type=password],
+form input[type=number] {
     border: none;
     border-bottom: 1px solid gray;
     background-color: whitesmoke;
 }
 
-form input[type=text]::placeholder {
+form input[type=text]::placeholder,
+form input[type=number]::placeholder {
     color: lightgray;
+}
+
+select,
+button {
+    border: 1px solid gray;
+    background-color: whitesmoke;
+    margin: .2% 0 .5% 0;
+    text-align: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+button {
+    border-radius: 5px;
 }
 
 .regular-checkbox {

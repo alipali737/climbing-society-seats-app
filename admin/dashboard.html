@@ -4,12 +4,103 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>UoW Climbing Society Session Manager</title>
-        <link rel="stylesheet" href="../resources/css/index.css">
+        <link rel="stylesheet" href="../resources/css/dashboard.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     </head>
     <body>
+        <script src="../resources/js/dashboard.js" defer></script>
+        <div id="copyPopup" class="popup">
+            <span id="copyPopupText"></span>
+        </div>
         <div id="main-section" class="all-round-shadow" style="background-color: white;">
-            <h1>Dashboard</h1>
+            <div id="dashboard-heading">
+                <h1 class="section-title">Dashboard</h1>
+            </div>
+            <nav class="section navbar">
+                <ul>
+                    <li><a href="#add-event-section">Add Event</a></li>
+                    <li><a href="#modify-event-section">Manage Events</a></li>
+                    <li><a href="#event-participants-section">Manage Registrations</a></li>
+                </ul>
+            </nav>
+            <div id="add-event-section" class="section">
+                <h2 class="section-title">Add Event</h2>
+                <form id="create-event-form" action="/api/create_event" method="POST">
+                    <label for="event_location">Event Location:</label>
+                    <input type="text" id="event_location" name="event_location" required placeholder="Enter event location">
+
+                    <label for="event_date">Event Date:</label>
+                    <input type="text" id="event_date" name="event_date" required placeholder="dd/mm/yyyy">
+
+                    <label for="meet_location">Meeting Location:</label>
+                    <input type="text" id="meet_location" name="meet_location" required placeholder="Enter meeting location">
+
+                    <label for="meet_time">Meeting Time:</label>
+                    <input type="text" id="meet_time" name="meet_time" required placeholder="hh:mm">
+
+                    <label for="total_seats">Total Seats:</label>
+                    <input type="number" id="total_seats" name="total_seats" required min="1" placeholder="Enter total seats">
+
+                    <label>Require Membership:</label>
+                    <input type="checkbox" class="regular-checkbox" id="require_member" name="require_member"><label for="require_member"></label><br><br>
+
+                    <label for="open_datetime">Open Time:</label>
+                    <input type="text" id="open_datetime" name="open_datetime" required placeholder="dd/mm/yyyy hh:mm:ss">
+
+                    <label for="close_datetime">Close Time:</label>
+                    <input type="text" id="close_datetime" name="close_datetime" required placeholder="dd/mm/yyyy hh:mm:ss">
+
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                        <button type="submit" id="submit-button" class="submit-button">
+                            <span id="submit-button-content">Create Event</span>
+                        </button>
+                    </div>
+                </form>
+                <p id="response-text"></p>
+            </div>
+            <hr>
+            <div id="modify-event-section" class="section">
+                <h2 class="section-title">Modify Event</h2>
+                <button onclick="getEvents()">Refresh Events</button>
+                <table id="event-table">
+                    <thead>
+                        <tr>
+                            <th>Event Location</th>
+                            <th>Event Date</th>
+                            <th>Meet Location</th>
+                            <th>Meet Time</th>
+                            <th>Total Seats</th>
+                            <th>Require Member</th>
+                            <th>Open Time</th>
+                            <th>Close Time</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="event-table-body">
+                        <!-- Event records will be dynamically populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            <div id="event-participants-section" class="section">
+                <h2 class="section-title">Event Registrations</h2>
+                <label for="event-select">Select Event:</label>
+                <select id="event-select" onchange="getParticipants()">
+                    <option value="">-- Select an event --</option>
+                </select>
+                <table id="participants-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="participants-table-body">
+                        <!-- Participant records will be dynamically populated here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </body>
 </html>

@@ -1,0 +1,198 @@
+@import url("common.css");
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) { 
+    html {
+        font-size: 16px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) { 
+    html {
+        font-size: 16px;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) { 
+    html {
+        font-size: 14px;
+    }
+}
+
+/* X-Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) { 
+    html {
+        font-size: 15px;
+        --main-section-width: 90%;
+    }
+}
+
+/* XX-Large devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) { 
+    html {
+        font-size: 16px;
+        --main-section-width: 80%;
+    }
+}
+
+#main-section {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: var(--main-section-width);
+    border-radius: 10px;
+}
+
+hr {
+    border: 1 solid gray;
+    width: 90%;
+
+}
+
+.navbar {
+    overflow: hidden;
+    background-color: var(--secondary-bg-colour);
+    text-align: center;
+}
+
+.navbar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.navbar ul li {
+    display: inline-block;
+    text-align: center;
+    padding: 1rem;
+    text-decoration: none;
+    font-size: 1.2rem;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #000;
+}
+
+.navbar li a:hover {
+    background-color: var(--main-bg-colour);
+}
+
+.section-title {
+    justify-self: center;
+    align-self: center;
+}
+
+#dashboard-heading {
+    display: flex;
+    justify-content: center;
+    background-color: var(--secondary-bg-colour);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: 1px solid gray;
+}
+
+.section {
+    margin: 2% 5%;
+}
+
+#add-event-section {
+    display: flex;
+    flex-direction: column;
+}
+
+form input {
+    margin: 0.5% 0 2% 0;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid grey;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+th {
+    background-color: var(--secondary-bg-colour);
+}
+
+table button {
+    background-color: var(--secondary-bg-colour);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    margin-right: 0.25rem;
+}
+
+.edit-cell {
+    display: inline-block;
+    width: 5rem;
+}
+
+.success-button {
+    color: white;
+    background-color: var(--bs-success);
+}
+
+.info-button {
+    color: white;
+    background-color: var(--bs-primary);
+}
+
+.warning-button {
+    color: black;
+    background-color: var(--bs-warning);
+}
+
+.danger-button {
+    color: white;
+    background-color: var(--bs-danger);
+}
+
+@keyframes slideUp {
+    from {
+        bottom: -100%;
+    }
+    to {
+        bottom: 20px;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        bottom: 20px;
+    }
+    to {
+        bottom: -100%;
+    }
+}
+
+.popup {
+    position: fixed;
+    bottom: -100%;
+    right: 20px;
+    z-index: 1;
+    color: white;
+    background-color: var(--society-green);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.show-popup {
+    animation: slideUp 0.5s forwards;
+}
+
+.hide-popup {
+    animation: slideDown 0.5s forwards;
+}

@@ -98,9 +98,10 @@ function responseText(text, success) {
 // EVENT DETAILS SECTION
 
 var countDownDate;
+var openDate;
 
 function fetchEventDetails() {
-    fetch('/api/events?event='+eventId)
+    fetch('/api/event?event='+eventId)
     .then(response => {
         if (!response.ok) {
             throw new Error('Error fetching event details: Request failed with status ' + response.status);
@@ -108,14 +109,16 @@ function fetchEventDetails() {
         return response.json();
     })
     .then(data => {
+        const seats_remaining = data.total_seats - data.current_seats;
+
         document.getElementById('session-location').textContent = data.session_location;
         document.getElementById('session-date').textContent = data.session_date;
         document.getElementById('meet-time').textContent = data.meet_time;
         document.getElementById('meet-point').textContent = data.meet_point;
-        document.getElementById('current-seats').textContent = data.current_seats;
+        document.getElementById('current-seats').textContent = seats_remaining;
         document.getElementById('max-seats').textContent = data.total_seats;
         
-        if (data.current_seats > 1) {
+        if (seats_remaining >= 1) {
             document.getElementById('current-seats').classList.remove('invalid-text');
             document.getElementById('current-seats').classList.add('valid-text');
         } else {
@@ -125,6 +128,7 @@ function fetchEventDetails() {
         }
 
         countDownDate = convertToDate(data.close_date);
+        openDate = convertToDate(data.open_date);
     })
     .catch(error => {
         const errorMessage = error.message;
@@ -163,7 +167,7 @@ var x = setInterval(function() {
     var now = new Date().getTime();
     var distance = countDownDate - now;
 
-    if (distance < 0) {
+    if (distance < 0 || (openDate - now) > 0) {
         clearInterval(x);
         document.getElementById("countdown-list").classList.add("disabled");
         document.getElementById("countdown-closed-text").classList.remove("disabled");
