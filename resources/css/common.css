@@ -1,11 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
 
 :root {
-    --main-bg-colour: #BCDEE6;
+    /* --main-bg-colour: #BCDEE6; */
+    --main-bg-colour: #1f3544;
     --secondary-bg-colour: #DCEEFD;
-    --society-green: #45B91A;
+    /* --society-green: #45B91A; */
+    --society-green: #198754;
     --society-green-lighter: #7bca5e;
     --society-green-darker: #358f14;
+    --society-blue: #1f3544;
+    --society-red: #861d29;
     --bs-success: #198754;
     --bs-danger: #DC3545;
     --bs-warning: #ffc107;
@@ -34,7 +38,7 @@ body {
 h1 {
     font-size: 5.375rem;
     text-transform: uppercase;
-    color: var(--society-green);
+    color: var(--society-red);
     margin: 0;
     padding: 0;
 }
