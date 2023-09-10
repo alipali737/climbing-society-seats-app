@@ -5,6 +5,8 @@ import (
 	"errors"
 
 	"golang.org/x/crypto/bcrypt"
+
+	_ "github.com/glebarez/go-sqlite"
 )
 
 type User struct {

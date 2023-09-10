@@ -1,8 +1,6 @@
 package run
 
 import (
-	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -11,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alipali737/climbing-society-seats-app/climbing-society-seats-app/pkg/database"
+	"github.com/alipali737/climbing-society-seats-app/climbing-society-seats-app/pkg/scheduler"
 	"github.com/alipali737/climbing-society-seats-app/climbing-society-seats-app/pkg/token"
 	"github.com/gin-gonic/gin"
 	_ "github.com/glebarez/go-sqlite"
@@ -37,6 +36,8 @@ func (r *Run) Run() error {
 	if err != nil {
 		return fmt.Errorf("failed to generate new encrypted token: %v", err)
 	}
+
+	scheduler.InitialiseScheduler()
 
 	router := gin.Default()
 
@@ -67,7 +68,7 @@ func (r *Run) Run() error {
 	router.GET("/api/participants", authMiddleware(encryptionPassPhrase), handleGetEventParticipants)
 	router.DELETE("/api/participant", authMiddleware(encryptionPassPhrase), handleDeleteParticipant)
 
-	router.Run(":443")
+	router.Run(":8080")
 	return nil
 }
 
@@ -130,7 +131,7 @@ func handleUpdateEvent(c *gin.Context) {
 		return
 	}
 
-	var event Event
+	var event database.Event
 	if err := c.BindJSON(&event); err != nil {
 		msg := fmt.Sprintf("Failed to update event: %s", err)
 		consoleError(msg)
@@ -138,7 +139,7 @@ func handleUpdateEvent(c *gin.Context) {
 		return
 	}
 
-	if err := updateEventInDatabase(eventID, event); err != nil {
+	if err := database.UpdateEventInDatabase(eventID, event); err != nil {
 		msg := fmt.Sprintf("Failed to update event: %s", err)
 		consoleError(msg)
 		sendResponse(c, false, msg, http.StatusInternalServerError)
@@ -146,46 +147,6 @@ func handleUpdateEvent(c *gin.Context) {
 	}
 
 	sendResponse(c, true, "Successfully updated event", http.StatusOK)
-}
-
-func updateEventInDatabase(eventID int, eventData Event) error {
-	db, err := sql.Open("sqlite", "./database.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	query := `
-        UPDATE events
-        SET
-            event_location = ?,
-            event_date = ?,
-            meet_location = ?,
-            meet_time = ?,
-            total_seats = ?,
-            require_member = ?,
-            open_datetime = ?,
-            close_datetime = ?
-        WHERE event_id = ?
-    `
-
-	_, err = db.Exec(
-		query,
-		eventData.EventLocation,
-		eventData.EventDate,
-		eventData.MeetLocation,
-		eventData.MeetTime,
-		eventData.TotalSeats,
-		eventData.RequireMember,
-		eventData.OpenDatetime,
-		eventData.CloseDatetime,
-		eventID,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func handleEventDetails(c *gin.Context) {
@@ -203,7 +164,7 @@ func handleEventDetails(c *gin.Context) {
 		return
 	}
 
-	event, err := getEventByID(eventID)
+	event, err := database.GetEventByID(eventID)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to get event: %s", err)
 		consoleError(msg)
@@ -229,7 +190,7 @@ func handleDeleteEvent(c *gin.Context) {
 		return
 	}
 
-	err = deleteEvent(eventID)
+	err = database.DeleteEvent(eventID)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to delete event: %s", err)
 		consoleError(msg)
@@ -241,14 +202,14 @@ func handleDeleteEvent(c *gin.Context) {
 }
 
 func handleCreateEvent(c *gin.Context) {
-	var event Event
+	var event database.Event
 	if err := c.BindJSON(&event); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		consoleError(err.Error())
 		return
 	}
 
-	err := createEvent(event)
+	err := database.CreateEvent(event)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		consoleError(err.Error())
@@ -257,45 +218,6 @@ func handleCreateEvent(c *gin.Context) {
 
 	// Handle POST request
 	sendResponse(c, true, "Event added!", http.StatusOK)
-}
-
-func createEvent(event Event) error {
-	db, err := sql.Open("sqlite", "./database.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	query := "INSERT INTO events (event_location, event_date, meet_location, meet_time, total_seats, require_member, open_datetime, close_datetime) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-	_, err = db.Exec(query, event.EventLocation, event.EventDate, event.MeetLocation, event.MeetTime, event.TotalSeats, event.RequireMember, event.OpenDatetime, event.CloseDatetime)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func deleteEvent(eventId int) error {
-	db, err := sql.Open("sqlite", "./database.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	query := "DELETE FROM events WHERE event_id = ?"
-	_, err = db.Exec(query, eventId)
-	if err != nil {
-		return err
-	}
-
-	// Cascade delete
-	query = "DELETE FROM participants WHERE event_id = ?"
-	_, err = db.Exec(query, eventId)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func handleDeleteParticipant(c *gin.Context) {
@@ -313,7 +235,7 @@ func handleDeleteParticipant(c *gin.Context) {
 		return
 	}
 
-	err = deleteParticipant(participantID)
+	err = database.DeleteParticipant(participantID)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to delete participant: %s", err)
 		consoleError(msg)
@@ -324,65 +246,12 @@ func handleDeleteParticipant(c *gin.Context) {
 	sendResponse(c, true, "Successfully deleted participant", http.StatusOK)
 }
 
-func deleteParticipant(participantID int) error {
-	db, err := sql.Open("sqlite", "./database.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	query := "DELETE FROM participants WHERE participant_id = ?"
-	res, err := db.Exec(query, participantID)
-	fmt.Println(res)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func handleGetEvents(c *gin.Context) {
-	db, err := sql.Open("sqlite", "./database.db")
+	events, err := database.GetEvents()
 	if err != nil {
-		msg := fmt.Sprintf("Failed to connect to database: %s", err)
-		consoleError(msg)
-		sendResponse(c, false, msg, http.StatusInternalServerError)
+		consoleError(err.Error())
+		sendResponse(c, false, err.Error(), http.StatusInternalServerError)
 		return
-	}
-	defer db.Close()
-
-	query := "SELECT event_id, event_location, event_date, meet_location, meet_time, total_seats, seats_taken, require_member, open_datetime, close_datetime FROM events"
-	rows, err := db.Query(query)
-	if err != nil {
-		msg := fmt.Sprintf("Failed to get events: %s", err)
-		consoleError(msg)
-		sendResponse(c, false, msg, http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var events []Event
-	for rows.Next() {
-		var event Event
-		err = rows.Scan(
-			&event.EventID,
-			&event.EventLocation,
-			&event.EventDate,
-			&event.MeetLocation,
-			&event.MeetTime,
-			&event.TotalSeats,
-			&event.SeatsTaken,
-			&event.RequireMember,
-			&event.OpenDatetime,
-			&event.CloseDatetime,
-		)
-		if err != nil {
-			msg := fmt.Sprintf("Failed to parse event: %s", err)
-			consoleError(msg)
-			sendResponse(c, false, msg, http.StatusInternalServerError)
-			return
-		}
-		events = append(events, event)
 	}
 
 	c.JSON(http.StatusOK, events)
@@ -403,7 +272,7 @@ func handleGetEventParticipants(c *gin.Context) {
 		return
 	}
 
-	participants, err := getEventParticipants(eventID)
+	participants, err := database.GetEventParticipants(eventID)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to get event participants: %s", err)
 		consoleError(msg)
@@ -412,149 +281,6 @@ func handleGetEventParticipants(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, participants)
-}
-
-type Event struct {
-	EventID       int    `db:"event_id" json:"event_id"`
-	EventLocation string `db:"event_location" json:"session_location"`
-	EventDate     string `db:"event_date" json:"session_date"`
-	MeetLocation  string `db:"meet_location" json:"meet_point"`
-	MeetTime      string `db:"meet_time" json:"meet_time"`
-	TotalSeats    int    `db:"total_seats" json:"total_seats"`
-	SeatsTaken    int    `db:"seats_taken" json:"current_seats"`
-	RequireMember bool   `db:"require_member" json:"require_member"`
-	OpenDatetime  string `db:"open_datetime" json:"open_date"`
-	CloseDatetime string `db:"close_datetime" json:"close_date"`
-}
-
-func (e *Event) addParticipant(firstName string, surname string, member bool) error {
-	// Confirm there is space
-	if e.TotalSeats-e.SeatsTaken <= 0 {
-		return errors.New("no seats available")
-	}
-
-	// Create DB connection
-	db, err := sql.Open("sqlite", "./database.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	// Check if the participant name already exists for the event
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM participants WHERE event_id = ? AND first_name = ? AND surname = ?", e.EventID, firstName, surname).Scan(&count)
-	if err != nil {
-		return fmt.Errorf("failed to execute SELECT statement: %v", err)
-	}
-
-	if count > 0 {
-		return fmt.Errorf("participant name already exists for the event")
-	}
-
-	// Add participant
-	stmt, err := db.Prepare("INSERT INTO participants (event_id, first_name, surname, member) VALUES (?, ?, ?, ?)")
-	if err != nil {
-		return fmt.Errorf("failed to prepare INSERT statement: %v", err)
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(e.EventID, firstName, surname, member)
-	if err != nil {
-		return fmt.Errorf("failed to execute INSERT statement: %v", err)
-	}
-
-	// Update seats taken
-	updateStmt, err := db.Prepare("UPDATE events SET seats_taken = seats_taken + 1 WHERE event_id = ?")
-	if err != nil {
-		return fmt.Errorf("failed to prepare UPDATE statement: %v", err)
-	}
-	defer updateStmt.Close()
-
-	_, err = updateStmt.Exec(e.EventID)
-	if err != nil {
-		return fmt.Errorf("failed to execute UPDATE statement: %v", err)
-	}
-
-	return nil
-}
-
-func getEventByID(eventID int) (*Event, error) {
-	db, err := sql.Open("sqlite", "./database.db")
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	query := "SELECT event_id, event_location, event_date, meet_location, meet_time, total_seats, seats_taken, require_member, open_datetime, close_datetime FROM events WHERE event_id = ?"
-	stmt, err := db.Prepare(query)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	row := stmt.QueryRow(eventID)
-
-	var event Event
-	err = row.Scan(
-		&event.EventID,
-		&event.EventLocation,
-		&event.EventDate,
-		&event.MeetLocation,
-		&event.MeetTime,
-		&event.TotalSeats,
-		&event.SeatsTaken,
-		&event.RequireMember,
-		&event.OpenDatetime,
-		&event.CloseDatetime,
-	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errors.New("event not found")
-		}
-		return nil, err
-	}
-
-	return &event, nil
-}
-
-type Participant struct {
-	ParticipantID int    `db:"participant_id" json:"participant_id"`
-	EventID       int    `db:"event_id" json:"event_id"`
-	FirstName     string `db:"first_name" json:"first_name"`
-	LastName      string `db:"surname" json:"last_name"`
-	Member        bool   `db:"member" json:"member"`
-}
-
-func getEventParticipants(eventID int) ([]Participant, error) {
-	db, err := sql.Open("sqlite", "./database.db")
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	query := "SELECT participant_id, event_id, first_name, surname, member FROM participants WHERE event_id = ?"
-	rows, err := db.Query(query, eventID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	participants := []Participant{}
-	for rows.Next() {
-		var participant Participant
-		if err := rows.Scan(
-			&participant.ParticipantID,
-			&participant.EventID,
-			&participant.FirstName,
-			&participant.LastName,
-			&participant.Member,
-		); err != nil {
-			return nil, err
-		}
-		participants = append(participants, participant)
-	}
-
-	return participants, nil
 }
 
 func handleAPIRegister(c *gin.Context) {
@@ -575,7 +301,7 @@ func handleAPIRegister(c *gin.Context) {
 	}
 
 	// Get event details
-	event, err := getEventByID(registrationData.EventID)
+	event, err := database.GetEventByID(registrationData.EventID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
 		consoleError(err.Error())
@@ -632,7 +358,7 @@ func handleAPIRegister(c *gin.Context) {
 	// Make updates to database
 	formattedName := strings.Title(registrationData.Name)
 	firstName, surname := splitName(formattedName)
-	err = event.addParticipant(firstName, surname, registrationData.Member)
+	err = event.AddParticipant(firstName, surname, registrationData.Member)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to update database: %v", err)
 		sendResponse(c, false, msg, http.StatusInternalServerError)
