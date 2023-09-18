@@ -9,7 +9,7 @@ import (
 )
 
 func CreateEvent(event Event) error {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "../../database.db")
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func CreateEvent(event Event) error {
 }
 
 func DeleteEvent(eventId int) error {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "../../database.db")
 	if err != nil {
 		return err
 	}
@@ -64,15 +64,21 @@ type Event struct {
 type EventStatus int
 
 const (
-	EventStatusUnknown EventStatus = iota
-	EventStatusScheduled
-	EventStatusCommitteeGroupSent
-	EventStatusMainGroupSent
-	EventStatusMissed
+	EventStatusScheduled EventStatus = iota
+	EventStatusClosed
 )
+
+func (e *Event) Close() error {
+	e.EventStatus = EventStatusClosed
+	return UpdateEventInDatabase(e.EventID, *e)
+}
 
 func (e *Event) GetLink() string {
 	return fmt.Sprintf("http://uowclimbingsociety.tplinkdns.com:8080/register?event=%d", e.EventID)
+}
+
+func (e *Event) GetParticipants() ([]Participant, error) {
+	return GetEventParticipants(e.EventID)
 }
 
 func (e *Event) AddParticipant(firstName string, surname string, member bool) error {
@@ -82,7 +88,7 @@ func (e *Event) AddParticipant(firstName string, surname string, member bool) er
 	}
 
 	// Create DB connection
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "../../database.db")
 	if err != nil {
 		return err
 	}
@@ -127,7 +133,7 @@ func (e *Event) AddParticipant(firstName string, surname string, member bool) er
 }
 
 func GetEventByID(eventID int) (*Event, error) {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "../../database.db")
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +181,7 @@ type Participant struct {
 }
 
 func GetEventParticipants(eventID int) ([]Participant, error) {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "../../database.db")
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +213,7 @@ func GetEventParticipants(eventID int) ([]Participant, error) {
 }
 
 func DeleteParticipant(participantID int) error {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "../../database.db")
 	if err != nil {
 		return err
 	}
@@ -224,7 +230,7 @@ func DeleteParticipant(participantID int) error {
 }
 
 func UpdateEventInDatabase(eventID int, eventData Event) error {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "../../database.db")
 	if err != nil {
 		return err
 	}
@@ -240,7 +246,8 @@ func UpdateEventInDatabase(eventID int, eventData Event) error {
             total_seats = ?,
             require_member = ?,
             open_datetime = ?,
-            close_datetime = ?
+            close_datetime = ?,
+			event_status = ?
         WHERE event_id = ?
     `
 
@@ -254,6 +261,7 @@ func UpdateEventInDatabase(eventID int, eventData Event) error {
 		eventData.RequireMember,
 		eventData.OpenDatetime,
 		eventData.CloseDatetime,
+		eventData.EventStatus,
 		eventID,
 	)
 	if err != nil {
