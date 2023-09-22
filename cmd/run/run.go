@@ -13,6 +13,7 @@ import (
 	"github.com/alipali737/climbing-society-seats-app/climbing-society-seats-app/pkg/token"
 	"github.com/gin-gonic/gin"
 	_ "github.com/glebarez/go-sqlite"
+	"github.com/joho/godotenv"
 )
 
 type RegistrationData struct {
@@ -26,6 +27,10 @@ type Run struct{}
 var encryptionPassPhrase string
 
 func (r *Run) Run() error {
+	err := godotenv.Load("../../config.env")
+	if err != nil {
+		return err
+	}
 	generatedPassphrase, err := token.GenerateRandomPassphrase(32)
 	if err != nil {
 		return fmt.Errorf("failed to generate secure passphrase for encryption: %v", err)
