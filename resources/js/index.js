@@ -167,7 +167,7 @@ var x = setInterval(function() {
     var now = new Date().getTime();
     var distance = countDownDate - now;
 
-    if (distance < 0 || (openDate - now) > 0) {
+    if (distance < 0) {
         clearInterval(x);
         document.getElementById("countdown-list").classList.add("disabled");
         document.getElementById("countdown-closed-text").classList.remove("disabled");

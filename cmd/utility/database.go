@@ -46,7 +46,7 @@ func (u newUser) generateSecureHash() (string, error) {
 
 func addUserToDB(username string, hashedPassword string) error {
 	// Create DB connection
-	db, err := sql.Open("sqlite", "../../database.db")
+	db, err := sql.Open("sqlite", "./database.db")
 	if err != nil {
 		return err
 	}

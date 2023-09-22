@@ -27,7 +27,7 @@ type Run struct{}
 var encryptionPassPhrase string
 
 func (r *Run) Run() error {
-	err := godotenv.Load("../../config.env")
+	err := godotenv.Load("./config.env")
 	if err != nil {
 		return err
 	}
@@ -315,13 +315,6 @@ func handleAPIRegister(c *gin.Context) {
 
 	// Check that sign ups are open
 	dateFormat := "02/01/2006 15:04:05"
-	openTime, err := time.Parse(dateFormat, event.OpenDatetime)
-	if err != nil {
-		msg := "Unable to parse event open date"
-		sendResponse(c, false, msg, http.StatusInternalServerError)
-		consoleError(msg)
-		return
-	}
 
 	closeTime, err := time.Parse(dateFormat, event.CloseDatetime)
 	if err != nil {
@@ -338,7 +331,7 @@ func handleAPIRegister(c *gin.Context) {
 	currentTime := time.Date(localTime.Year(), localTime.Month(), localTime.Day(), localTime.Hour(), localTime.Minute(),
 		localTime.Second(), localTime.Nanosecond(), time.UTC)
 
-	if !(currentTime.After(openTime) && currentTime.Before(closeTime)) {
+	if !(currentTime.Before(closeTime)) {
 		msg := "The event is not currently open for registration"
 		sendResponse(c, false, msg, http.StatusForbidden)
 		consoleError(msg)

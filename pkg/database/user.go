@@ -16,7 +16,7 @@ type User struct {
 }
 
 func GetUserFromDatabaseByUsername(username string) (*User, error) {
-	db, err := sql.Open("sqlite", "../../database.db")
+	db, err := sql.Open("sqlite", "./database.db")
 	if err != nil {
 		return nil, err
 	}
