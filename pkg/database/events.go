@@ -270,7 +270,7 @@ func DeleteParticipant(participantID int) error {
 		return err
 	}
 
-	event.SeatsTaken++
+	event.SeatsTaken = event.SeatsTaken - 1
 	err = UpdateEventInDatabase(event.EventID, *event)
 	if err != nil {
 		return err
@@ -294,6 +294,7 @@ func UpdateEventInDatabase(eventID int, eventData Event) error {
             meet_location = ?,
             meet_time = ?,
             total_seats = ?,
+			seats_taken = ?,
             require_member = ?,
             open_datetime = ?,
             close_datetime = ?,
@@ -308,6 +309,7 @@ func UpdateEventInDatabase(eventID int, eventData Event) error {
 		eventData.MeetLocation,
 		eventData.MeetTime,
 		eventData.TotalSeats,
+		eventData.SeatsTaken,
 		eventData.RequireMember,
 		eventData.OpenDatetime,
 		eventData.CloseDatetime,
