@@ -212,6 +212,40 @@ func GetEventParticipants(eventID int) ([]Participant, error) {
 	return participants, nil
 }
 
+func GetParticipantByID(participantID int) (*Participant, error) {
+	db, err := sql.Open("sqlite", "./database.db")
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	query := "SELECT participant_id, event_id, first_name, surname, member FROM participants WHERE participant_id = ?"
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(participantID)
+
+	var participant Participant
+	err = row.Scan(
+		&participant.ParticipantID,
+		&participant.EventID,
+		&participant.FirstName,
+		&participant.LastName,
+		&participant.Member,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("participant not found")
+		}
+		return nil, err
+	}
+
+	return &participant, nil
+}
+
 func DeleteParticipant(participantID int) error {
 	db, err := sql.Open("sqlite", "./database.db")
 	if err != nil {
@@ -219,9 +253,25 @@ func DeleteParticipant(participantID int) error {
 	}
 	defer db.Close()
 
+	participant, err := GetParticipantByID(participantID)
+	if err != nil {
+		return err
+	}
+
+	event, err := GetEventByID(participant.EventID)
+	if err != nil {
+		return err
+	}
+
 	query := "DELETE FROM participants WHERE participant_id = ?"
 	res, err := db.Exec(query, participantID)
 	fmt.Println(res)
+	if err != nil {
+		return err
+	}
+
+	event.SeatsTaken++
+	err = UpdateEventInDatabase(event.EventID, *event)
 	if err != nil {
 		return err
 	}
