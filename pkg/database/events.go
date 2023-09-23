@@ -9,7 +9,7 @@ import (
 )
 
 func CreateEvent(event Event) error {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func CreateEvent(event Event) error {
 }
 
 func DeleteEvent(eventId int) error {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (e *Event) AddParticipant(firstName string, surname string, member bool) er
 	}
 
 	// Create DB connection
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (e *Event) AddParticipant(firstName string, surname string, member bool) er
 }
 
 func GetEventByID(eventID int) (*Event, error) {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ type Participant struct {
 }
 
 func GetEventParticipants(eventID int) ([]Participant, error) {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func GetEventParticipants(eventID int) ([]Participant, error) {
 }
 
 func GetParticipantByID(participantID int) (*Participant, error) {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +247,7 @@ func GetParticipantByID(participantID int) (*Participant, error) {
 }
 
 func DeleteParticipant(participantID int) error {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func DeleteParticipant(participantID int) error {
 }
 
 func UpdateEventInDatabase(eventID int, eventData Event) error {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func UpdateEventInDatabase(eventID int, eventData Event) error {
 }
 
 func GetEvents() ([]Event, error) {
-	db, err := sql.Open("sqlite", "./database.db")
+	db, err := sql.Open("sqlite", "/home/pi/climbing-society-seats-app/database.db")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect to database: %s", err)
 	}
