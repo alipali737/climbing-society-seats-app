@@ -251,6 +251,10 @@ async function getParticipants() {
 
         if (eventParticipants.length == 0) {
             const row = document.createElement("tr");
+
+            const indexCell = document.createElement("td");
+            row.appendChild(indexCell);
+
             const firstNameCell = document.createElement("td");
             firstNameCell.textContent = "No participants registered";
             row.appendChild(firstNameCell);
