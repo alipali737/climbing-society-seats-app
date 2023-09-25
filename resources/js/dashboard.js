@@ -220,8 +220,15 @@ async function getParticipants() {
     
         // Populate table
         participantsTableBody.innerHTML = '';
+        index = 0;
         for (const participant of eventParticipants) {
+            index = index + 1;
             const row = document.createElement("tr");
+            
+            const indexCell = document.createElement("td");
+            indexCell.textContent = index;
+            row.appendChild(indexCell);
+            
             const firstNameCell = document.createElement("td");
             firstNameCell.textContent = participant.first_name;
             row.appendChild(firstNameCell);
