@@ -16,8 +16,8 @@ import (
 func InitialiseScheduler() {
 	c := cron.New()
 
-	_, err := c.AddFunc("0 0 8 * * *", func() {
-		checkScheduledEvents()
+	_, err := c.AddFunc("0 8 * * *", func() {
+		CheckScheduledEvents()
 	})
 	if err != nil {
 		log.Println("Error scheduling function: ", err)
@@ -33,7 +33,8 @@ func InitialiseScheduler() {
 	c.Start()
 }
 
-func checkScheduledEvents() {
+func CheckScheduledEvents() {
+	fmt.Println("Checking Scheduled Events")
 	events, err := database.GetEvents()
 	if err != nil {
 		log.Println(err)
@@ -56,7 +57,7 @@ func checkScheduledEvents() {
 		}
 
 		if dateEqual(openDatetime, currentDatetime) {
-			message += fmt.Sprintf(messageFormat, "Committee", committeeMsgDatetime.String(), event.EventLocation, event.MeetTime, event.MeetLocation, event.CloseDatetime, event.GetLink())
+			message += fmt.Sprintf(messageFormat, "Main", openDatetime.String(), event.EventLocation, event.MeetTime, event.MeetLocation, event.CloseDatetime, event.GetLink())
 		}
 	}
 
@@ -145,7 +146,7 @@ func getRoundedTimes(event database.Event) (currentTime, committeeMsgTime, openT
 		localTime.Second(), localTime.Nanosecond(), time.UTC)
 	currentTime = currentTime.Round(time.Minute)
 
-	committeeMsgTime = openTime.Add(-(time.Hour * 24))
+	committeeMsgTime = openTime.Add(-(time.Hour * 6))
 
 	return currentTime, committeeMsgTime, openTime, closeTime, nil
 }

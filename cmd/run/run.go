@@ -42,6 +42,8 @@ func (r *Run) Run() error {
 		return fmt.Errorf("failed to generate new encrypted token: %v", err)
 	}
 
+	scheduler.CheckScheduledEvents()
+
 	scheduler.InitialiseScheduler()
 
 	router := gin.Default()
