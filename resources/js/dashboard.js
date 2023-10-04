@@ -145,7 +145,7 @@ function saveEvent(rowIndex, eventId) {
         meet_point: cells[2].querySelector('input').value,
         meet_time: cells[3].querySelector('input').value,
         total_seats: parseInt(cells[4].querySelector('input').value),
-        require_member: cells[5].querySelector('input').checked,
+        require_member: cells[5].querySelector('input').value,
         open_date: cells[6].querySelector('input').value,
         close_date: cells[7].querySelector('input').value,
     };

@@ -146,6 +146,26 @@ func handleUpdateEvent(c *gin.Context) {
 		return
 	}
 
+	eventParticipants, err := database.GetEventParticipants(event.EventID)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to get event participants for update: %s", err)
+		consoleError(msg)
+		sendResponse(c, false, msg, http.StatusBadRequest)
+		return
+	}
+
+	event.SeatsTaken = len(eventParticipants)
+
+	oldEvent, err := database.GetEventByID(event.EventID)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to get old event for update: %s", err)
+		consoleError(msg)
+		sendResponse(c, false, msg, http.StatusInternalServerError)
+		return
+	}
+
+	event.EventStatus = oldEvent.EventStatus
+
 	if err := database.UpdateEventInDatabase(eventID, event); err != nil {
 		msg := fmt.Sprintf("Failed to update event: %s", err)
 		consoleError(msg)
