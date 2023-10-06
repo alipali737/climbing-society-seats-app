@@ -75,7 +75,7 @@ func (r *Run) Run() error {
 	router.GET("/api/participants", authMiddleware(encryptionPassPhrase), handleGetEventParticipants)
 	router.DELETE("/api/participant", authMiddleware(encryptionPassPhrase), handleDeleteParticipant)
 
-	router.Run(":8080")
+	router.Run(":443")
 	return nil
 }
 
