@@ -56,6 +56,47 @@
                         </button>
                     </div>
                 </form>
+                <script>
+                    const currentDate = new Date();
+
+                    const open = new Date(currentDate);
+                    open.setDate(currentDate.getDate() + 1);
+                    open.setHours(18,0,0,0);
+
+                    const close = new Date(currentDate);
+                    close.setDate(currentDate.getDate() + 2);
+                    close.setHours(18,0,0,0);
+
+                    const eventDate = new Date(currentDate);
+                    eventDate.setDate(currentDate.getDate() + 3);
+                    eventDate.setHours(0,0,0,0);
+
+                    document.getElementById("event_location").value = "Parthian Sou";
+                    document.getElementById("meet_location").value = "The Stripe";
+                    document.getElementById("meet_time").value = "18:15";
+                    document.getElementById("total_seats").value = 16;
+                    document.getElementById("require_member").checked = true;
+
+                    function formatDateString(date) {
+                        return date.toLocaleDateString(undefined, {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric"
+                        });
+                    }
+
+                    function formatTimeString(date) {
+                        return date.toLocaleTimeString(undefined, {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit"
+                        });
+                    }
+
+                    document.getElementById("event_date").value = formatDateString(eventDate);
+                    document.getElementById("open_datetime").value = formatDateString(open) + ' ' + formatTimeString(open);
+                    document.getElementById("close_datetime").value = formatDateString(close) + ' ' + formatTimeString(close);
+                </script>
                 <p id="response-text"></p>
             </div>
             <hr>
