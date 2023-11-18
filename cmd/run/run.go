@@ -243,6 +243,8 @@ func handleCreateEvent(c *gin.Context) {
 		return
 	}
 
+	scheduler.CheckScheduledEvents()
+
 	// Handle POST request
 	sendResponse(c, true, "Event added!", http.StatusOK)
 }
